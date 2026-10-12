@@ -143,11 +143,11 @@ dialog .foot{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
 
   // ───────────── 연결: GAS(운영) / Core.js + localStorage(데모) ─────────────
   var LIVE = !!(window.google && google.script && google.script.run);
-  var DEMO_KEY = 'weekly-report-demo-v1';
-  var DEMO_USER_KEY = 'weekly-report-demo-user';
+  var DEMO_KEY = 'weekly-report-demo-v2';
+  var DEMO_USER_KEY = 'weekly-report-demo-user-v2';
 
   var demo = {
-    user: 'jm3280',
+    user: 'user06',
     store: null,
     init: function () {
       try { this.user = localStorage.getItem(DEMO_USER_KEY) || this.user; } catch (e) {}
@@ -159,7 +159,7 @@ dialog .foot{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
         var saved = null;
         try { saved = JSON.parse(localStorage.getItem(DEMO_KEY)); } catch (e) {}
         demo.store = Core.MemoryStore(saved, function (d) { try { localStorage.setItem(DEMO_KEY, JSON.stringify(d)); } catch (e) {} });
-        if (Core.seed(demo.store)) seedDemoReports(demo.store);
+        if (Core.seedDemo(demo.store)) seedDemoReports(demo.store);
       });
     },
     call: function (m, a) {
@@ -173,13 +173,13 @@ dialog .foot{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
     function rep(week, id, team, status, done, plan) {
       store.save('reports', { id: week + '_' + id, week: week, personId: id, teamId: team, done: done, plan: plan, issue: '', status: status, updatedAt: t, submittedAt: status === 'submitted' ? t : '', returnNote: '', returnedBy: '' });
     }
-    rep(pw, 'suk81', 'acad', 'submitted', '- 2학기 강의평가 문항 검토\n- 고등교육통계 2차 자료 제출', '- 강의평가 시스템 오픈 준비');
-    rep(pw, 'jm3280', 'acad', 'submitted', '- 2027학년도 교육과정 편성 자료 취합\n- 수강신청 시스템 정정기간 운영', '- 교육과정 편성 시스템 반영\n- 예비군 학적변동 연계 점검');
-    rep(w, 'suk81', 'acad', 'submitted', '- 강의평가 시스템 오픈 준비 완료\n- 교직 이수예정자 명단 확정', '- 강의평가 오픈(10/20)');
-    rep(w, 'emjeong', 'acad', 'submitted', '- 중간고사 성적입력 기간 안내\n- 국가장학금 2차 연계 점검', '- 성적 입력 기능 개선 배포');
-    rep(w, 'gowjd0710', 'acad', 'draft', '- 2026 후기 졸업사정 기준 정리', '');
-    rep(w, 'blue5tion', 'itplan', 'submitted', '- 정보화위원회 안건 준비', '- 정보화위원회 개최');
-    store.save('teamReports', { id: pw + '_acad', week: pw, teamId: 'acad', authorId: 'leehowon', done: '■ 교육과정·수강신청\n- 2027학년도 교육과정 편성 자료 취합\n■ 학적·통계\n- 고등교육통계 2차 자료 제출', plan: '- 강의평가 시스템 오픈 준비', issue: '', status: 'approved', updatedAt: t, submittedAt: t, reviewNote: '수고하셨습니다.', reviewerId: 'cheonhb', reviewedAt: t });
+    rep(pw, 'user07', 'team-a', 'submitted', '- 업무 A 1차 자료 정리\n- 관련 부서 협의', '- 업무 A 2차 자료 작성');
+    rep(pw, 'user06', 'team-a', 'submitted', '- 시스템 개선 요구사항 취합\n- 운영 점검', '- 개선 기능 반영\n- 사용자 안내문 작성');
+    rep(w, 'user07', 'team-a', 'submitted', '- 업무 A 2차 자료 작성 완료\n- 회의 자료 준비', '- 업무 A 결과 보고');
+    rep(w, 'user08', 'team-a', 'submitted', '- 정기 점검 수행\n- 문의 대응 12건', '- 점검 결과 정리');
+    rep(w, 'user09', 'team-b', 'draft', '- 업무 B 기준 정리', '');
+    rep(w, 'user11', 'team-c', 'submitted', '- 업무 C 위원회 안건 준비', '- 위원회 개최');
+    store.save('teamReports', { id: pw + '_team-a', week: pw, teamId: 'team-a', authorId: 'user03', done: '■ 업무 A\n- 1차 자료 정리\n■ 시스템\n- 개선 요구사항 취합', plan: '- 업무 A 2차 자료 작성', issue: '', status: 'approved', updatedAt: t, submittedAt: t, reviewNote: '수고하셨습니다.', reviewerId: 'user02', reviewedAt: t });
   }
 
   function call(method, args) {
@@ -267,7 +267,7 @@ dialog .foot{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
   function nameOf(id) { var p = personById(id); return p ? (p.name || p.id) : id; }
 
   // ───────────── 이름 기억 ─────────────
-  // 업무분장표엔 이름이 없어서, 한 번 입력하면 people 에 저장하고 이후 계속 사용한다.
+  // 조직 데이터엔 이메일 아이디만 있을 수 있어서, 한 번 입력한 이름은 people 에 저장해 계속 사용한다.
   function rememberName(personId, name) {
     return call('setName', { personId: personId, name: name }).then(function (r) {
       var p = personById(r.id); if (p) p.name = r.name;
@@ -312,7 +312,7 @@ dialog .foot{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
     return new Promise(function (resolve) {
       openForm({
         title: '이름을 입력해 주세요',
-        sub: '업무분장표에는 이메일 아이디만 있어서 처음 한 번만 입력합니다. 이후 보고서·현황에 이 이름이 표시됩니다.',
+        sub: '조직 정보에 이름이 없어서 처음 한 번만 입력합니다. 이후 보고서·현황에 이 이름이 표시됩니다.',
         fields: [{ name: 'name', label: '이름 (' + me.id + '@pusan.ac.kr)', value: '', required: true, maxlength: 20 }],
         submitText: '저장',
         noCancel: true,
@@ -428,7 +428,7 @@ dialog .foot{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
     sel.insertBefore(top, sel.firstChild);
     sel.value = demo.user;
     append(d, [
-      h('span', null, h('b', null, '데모 모드'), ' · 이 브라우저에만 저장됩니다. 실제 사용은 GAS 웹 앱(학교 구글 계정 로그인)으로 접속하세요.'),
+      h('span', null, h('b', null, '데모 모드'), ' · 가상 조직(팀A~팀E, user01~) 데이터이며 이 브라우저에만 저장됩니다. 실제 사용은 GAS 웹 앱(학교 구글 계정 로그인)으로 접속하세요.'),
       h('label', null, '사용자 전환 ', sel),
       h('button', { class: 'btn sm', type: 'button', onclick: function () {
         if (!confirm('데모 데이터를 초기화할까요?')) return;

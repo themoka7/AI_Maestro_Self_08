@@ -2,6 +2,7 @@
  * AX·정보화혁신본부 주간보고 — Apps Script 웹 앱
  *
  * 최초 1회 수동 실행: setup() → installTriggers()
+ * 조직 데이터는 저장소에 없다. setup() 이 DB 시트 / ORG_SHEET_ID / ORG_JSON / INITIAL_ADMIN 순으로 찾는다.
  * 배포: 웹 앱 / 실행 사용자: 나 / 액세스: pusan.ac.kr 도메인 사용자
  *
  * 화면(Index.html)은 google.script.run.api(method, args) 하나로 서버를 호출하고,
@@ -125,9 +126,51 @@ function setup() {
     if (sh && ss.getSheets().length > 1) ss.deleteSheet(sh);
   });
 
-  var seeded = Core.seed(new SheetStore_(ss));
-  Logger.log('DB: %s (초기 조직 %s)', ss.getUrl(), seeded ? '등록' : '기존 유지');
+  var store = new SheetStore_(ss);
+  if (store.all('people').length) {
+    Logger.log('DB: %s (people 시트에 기존 조직 유지)', ss.getUrl());
+    return ss.getUrl();
+  }
+  var org = loadOrg_();
+  if (!org) {
+    Logger.log('DB: %s\n조직 데이터가 없습니다. 다음 중 하나를 한 뒤 setup() 을 다시 실행하세요.\n' +
+      ' - DB 의 depts/teams/people 시트에 직접 붙여넣기 (이 경우 setup 재실행 불필요)\n' +
+      ' - 스크립트 속성 ORG_SHEET_ID: 조직 원본 스프레드시트 ID\n' +
+      ' - 스크립트 속성 ORG_JSON: {"depts":[],"teams":[],"people":[]} (9KB 이하)\n' +
+      ' - 스크립트 속성 INITIAL_ADMIN: 관리자 이메일 아이디 (나머지는 관리 화면에서 등록)', ss.getUrl());
+    return ss.getUrl();
+  }
+  Core.importOrg(store, org.data);
+  Logger.log('DB: %s (조직 %s명 등록, 출처: %s)', ss.getUrl(), org.data.people.length, org.source);
   return ss.getUrl();
+}
+
+// 실제 조직 데이터는 저장소(공개)에 두지 않는다. 운영자가 아래 중 하나로 넣는다.
+function loadOrg_() {
+  var p = PropertiesService.getScriptProperties();
+
+  // 1) 별도 비공개 스프레드시트 (시트 이름 depts / teams / people, 1행은 필드명)
+  var sourceId = p.getProperty('ORG_SHEET_ID');
+  if (sourceId) {
+    var src = SpreadsheetApp.openById(sourceId);
+    var data = {};
+    ['depts', 'teams', 'people'].forEach(function (t) {
+      var sh = src.getSheetByName(t);
+      data[t] = sh && sh.getLastRow() > 1 ? Core.fromTable(sh.getDataRange().getDisplayValues()) : [];
+    });
+    return { source: 'ORG_SHEET_ID', data: data };
+  }
+
+  // 2) 스크립트 속성 JSON (속성 값 한도 9KB — 작은 조직용)
+  var json = p.getProperty('ORG_JSON');
+  if (json) return { source: 'ORG_JSON', data: JSON.parse(json) };
+
+  // 3) 관리자 1명만 등록하고 나머지는 관리 화면에서 추가
+  var admin = String(p.getProperty('INITIAL_ADMIN') || '').trim().toLowerCase().replace(/@.*$/, '');
+  if (admin) {
+    return { source: 'INITIAL_ADMIN', data: { depts: [], teams: [], people: [{ id: admin, position: '관리자', admin: true, active: true }] } };
+  }
+  return null;
 }
 
 function installTriggers() {
