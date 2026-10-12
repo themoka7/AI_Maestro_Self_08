@@ -62,4 +62,5 @@ POST <exec>   {"action":"submit","round":6,"name":"","email":"","title":"","link
 
 ## Pages 설정
 
-Settings → Pages → Source 를 **GitHub Actions** 로 지정하면 `main` 또는 작업 브랜치에 `site/` 변경을 push 할 때 자동 배포됩니다.
+Settings → Pages → Source 를 **GitHub Actions** 로 지정하면 `main` 에 `site/` 변경을 push 할 때 자동 배포됩니다.
+(`github-pages` 환경은 기본적으로 `main` 만 배포를 허용합니다.)
