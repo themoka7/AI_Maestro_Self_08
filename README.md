@@ -1,66 +1,71 @@
-# 과제 제출 트래커 (6회차 · GAS 자동화 앱)
+# AX·정보화혁신본부 주간보고
 
-Google Apps Script 웹 앱 하나로 **과제 제출 접수 → 시트 기록 → 회차별 집계 → 매일 알림 메일**까지 자동화한 앱입니다.
-화면은 GitHub Pages 정적 페이지이고, 백엔드는 GAS 웹 앱 + Google Sheets 입니다.
+**개인 → 팀장 → 과장**으로 올라가는 주간업무보고를 Google Apps Script 웹 앱 하나로 운영합니다.
+저장소는 Google Sheets, 로그인은 학교 구글 계정(`@pusan.ac.kr`)입니다.
 
-- 페이지: https://themoka7.github.io/AI_Maestro_Self_08/
+- 데모(GitHub Pages): https://themoka7.github.io/AI_Maestro_Self_08/ — 사용자를 바꿔 가며 흐름을 체험할 수 있고, 데이터는 그 브라우저에만 저장됩니다.
+- 실제 사용: GAS 웹 앱 URL (아래 배포 절차)
 
-웹 앱 URL 을 연결하기 전에는 페이지가 **데모 모드**(브라우저 localStorage)로 동작합니다.
+## 보고 흐름
+
+| 단계 | 누가 | 하는 일 |
+|---|---|---|
+| ① 개인 보고 | 주무관 | 금주 실적 / 차주 계획 / 건의·특이사항 작성 → 팀장에게 제출. "지난주 계획 가져오기"로 지난주 차주 계획을 금주 실적에 채움 |
+| ② 팀 보고 | 팀장 | 팀원 제출 현황 확인, 개별 보고 반려(사유 필수), "팀원 보고 불러오기"로 자동 취합 → 다듬어서 과장에게 제출 |
+| ③ 과 보고 | 과장 | 팀별 제출·확인 현황, 팀 보고 확인/반려(반려 시 의견 필수), 팀원 개별 보고 열람, 취합본 인쇄 |
+| 전체 현황 | 본부장·부본부장·센터장 | 본부 전체 팀 보고 열람·인쇄 |
+| 관리 | 관리자 | 구성원·팀·과·마감 요일·알림 설정 |
+
+- 팀 보고가 과장에게 올라가면 그 주 개인 보고는 잠깁니다 (팀장이 반려한 건만 수정 가능).
+- 과장이 확인한 팀 보고는 잠깁니다. 반려되면 팀장이 고쳐서 다시 제출합니다.
+- 한 사람이 여러 팀의 팀장(예: 정보화기획팀·교육연구지원팀·정보보호교육 지역센터)이거나 두 과의 과장이면 화면에서 팀/과를 골라 처리합니다.
+
+### 이름 기억
+
+업무분장표에는 이메일 아이디만 있어서 이름은 비어 있는 상태로 시작합니다.
+
+- 처음 접속하면 본인 이름을 묻고, 입력한 이름은 `people` 시트에 저장되어 이후 모든 화면·취합본·메일에 쓰입니다.
+- 팀장은 팀원, 과장은 과 소속 인원, 관리자는 전원의 이름을 표 안의 **이름 입력** 버튼으로 바로 저장할 수 있습니다.
+
+### 알림 메일 (운영 모드)
+
+- 제출·반려·확인 시: 팀원 전원 제출 → 팀장, 팀 보고 제출 → 과장, 반려/확인 → 당사자
+- 마감일 09시: 개인 마감일엔 미제출 팀원, 팀 마감일엔 미제출 팀장에게 리마인더 (기본 목요일 / 금요일, 관리 화면에서 변경)
 
 ## 구조
 
 ```
 gas/
-  Code.gs          # doGet/doPost API, setup, 트리거, 일일 알림
-  appsscript.json  # 타임존 Asia/Seoul, 웹 앱(배포자 권한·익명 접근)
-site/
-  index.html       # 제출 폼 + 현황 대시보드 (의존성 없음)
-  config.js        # GAS 웹 앱 URL
+  Core.js          # 도메인 로직·권한 검사·초기 조직(2026.10.01. 업무분장표). 서버와 데모가 같이 사용
+  Code.gs          # 웹 앱 진입점, Sheets 저장소, 메일, 트리거
+  Index.html       # 화면 (의존성 없는 HTML/JS)
+  appsscript.json  # 웹 앱: 배포자 권한 실행, pusan.ac.kr 도메인 사용자만 접근
 .github/workflows/
-  pages.yml        # site/ → GitHub Pages
+  pages.yml        # gas/Index.html + Core.js → GitHub Pages 데모
   gas-deploy.yml   # gas/ → Apps Script (clasp, 시크릿 있을 때만)
 ```
 
-## 동작
+DB 스프레드시트 시트: `depts`(과) · `teams`(팀) · `people`(구성원) · `reports`(개인 보고) · `teamReports`(팀 보고) · `settings`
 
-| 단계 | 구현 |
-|---|---|
-| 제출 | 페이지 → `doPost` (`Content-Type: text/plain` 으로 CORS preflight 회피) |
-| 기록 | `Submissions` 시트에 append, `Roster` 에 이메일 기준 자동 등록. `LockService` 로 동시 제출 직렬화 |
-| 집계 | `doGet?action=summary&round=N` — 회차별 사람당 최신 제출 기준. 공개 응답의 이메일은 마스킹 |
-| 알림 | `sendDailyDigest` 매일 09시: 운영자에게 요약, 마감 3일 전부터 미제출자에게 리마인더 |
+## 운영 배포 (최초 1회)
 
-API
+`pusan.ac.kr` 구글 계정으로 진행합니다. 초기 관리자는 `jm3280` 입니다 (관리 화면에서 변경).
 
-```
-GET  <exec>?action=summary&round=6
-GET  <exec>?action=recent&limit=20
-GET  <exec>?action=ping
-POST <exec>   {"action":"submit","round":6,"name":"","email":"","title":"","link":"https://...","note":""}
-```
+1. https://script.google.com → 새 프로젝트
+2. 파일 3개 생성 후 내용 붙여넣기: `Code.gs`, `Core.gs`(← `gas/Core.js` 내용), `Index.html`
+   프로젝트 설정에서 "appsscript.json 매니페스트 파일 표시" → `gas/appsscript.json` 내용으로 교체
+3. 편집기에서 `setup` 실행 → 권한 승인. 로그에 DB 스프레드시트 URL 출력, 업무분장표 기준 조직 44명 자동 등록
+4. `installTriggers` 실행 → 매일 09시 리마인더 트리거 등록
+5. 배포 → 새 배포 → **웹 앱** / 실행: **나** / 액세스: **부산대학교 내 모든 사용자** → 발급된 URL 공유
 
-## GAS 배포 (최초 1회)
-
-1. https://script.google.com 에서 새 프로젝트 생성 → `gas/Code.gs`, `gas/appsscript.json` 내용 붙여넣기
-   (편집기 설정에서 "appsscript.json 표시" 체크)
-2. 함수 `setup` 실행 → 권한 승인 → 로그에 DB 스프레드시트 URL 출력
-3. 함수 `installTriggers` 실행 → 매일 09시 알림 트리거 등록
-4. 프로젝트 설정 → 스크립트 속성
-   - `CURRENT_ROUND` : `6` (setup 이 기본값 설정)
-   - `DEADLINE` : 예) `2026-10-19T23:59:00+09:00` — 없으면 학생 리마인더 미발송
-   - `OWNER_EMAIL` : 요약 메일 수신자 (기본: 배포자)
-   - `REMIND_STUDENTS` : `false` 면 학생 리마인더 끔
-5. 배포 → 새 배포 → 유형 **웹 앱**, 실행: 나, 액세스: 모든 사용자 → `/exec` URL 복사
-6. `site/config.js` 의 `GAS_API_URL` 에 URL 입력 후 push → Pages 재배포
-   (커밋 없이 확인하려면 `?api=<exec URL>` 쿼리)
+조직 변경(인사이동, 신규 직원)은 관리 화면에서 하면 됩니다. 시트를 직접 고쳐도 되지만 모든 칸이 일반 텍스트여야 합니다.
 
 ### CI 로 GAS 자동 배포 (선택)
 
 저장소 시크릿에 `CLASPRC_JSON`(`npx @google/clasp login` 후 `~/.clasprc.json`), `GAS_SCRIPT_ID` 를 넣으면
-`gas/` 변경 push 시 `clasp push` + `deploy` 를 수행합니다. `GAS_DEPLOYMENT_ID` 를 넣으면 같은 `/exec` URL 로 버전만 갱신합니다.
-사용자 계정에서 [Apps Script API](https://script.google.com/home/usersettings) 를 켜 두어야 합니다.
+`gas/` 변경 push 시 `clasp push` + `deploy` 를 수행합니다. `GAS_DEPLOYMENT_ID` 를 넣으면 같은 웹 앱 URL 로 버전만 갱신합니다.
+[Apps Script API](https://script.google.com/home/usersettings) 를 켜 두어야 합니다.
 
-## Pages 설정
+## Pages
 
-Settings → Pages → Source 를 **GitHub Actions** 로 지정하면 `main` 에 `site/` 변경을 push 할 때 자동 배포됩니다.
-(`github-pages` 환경은 기본적으로 `main` 만 배포를 허용합니다.)
+Settings → Pages → Source: **GitHub Actions**. `main` 에 `gas/Index.html`·`gas/Core.js` 변경을 push 하면 데모가 갱신됩니다.

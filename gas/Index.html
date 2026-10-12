@@ -1,0 +1,960 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AX·정보화혁신본부 주간보고</title>
+<style>
+:root{
+  --bg:#f5f6f8; --panel:#fff; --ink:#18212c; --muted:#5d6876; --line:#e1e5eb; --soft:#f0f3f6;
+  --accent:#1d4f91; --accent-ink:#fff; --ok:#1a7f4e; --warn:#a86b00; --bad:#b3261e; --info:#5b4bb5;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f141a; --panel:#171d25; --ink:#e6eaef; --muted:#9aa5b3; --line:#2a323d; --soft:#1d242e;
+    --accent:#86b3ee; --accent-ink:#0f141a; --ok:#5fc493; --warn:#e2b04a; --bad:#ff8a80; --info:#b3a6ff;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f141a; --panel:#171d25; --ink:#e6eaef; --muted:#9aa5b3; --line:#2a323d; --soft:#1d242e;
+  --accent:#86b3ee; --accent-ink:#0f141a; --ok:#5fc493; --warn:#e2b04a; --bad:#ff8a80; --info:#b3a6ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 "Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 64px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+header.top h1{font-size:clamp(19px,3.4vw,24px);margin:0;letter-spacing:-.02em}
+.who{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+.who b{color:var(--ink)}
+.btn{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13.5px;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:3px 9px;font-size:12.5px}
+.btn:disabled{opacity:.5;cursor:default}
+.link{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-size:12.5px;text-decoration:underline}
+.demo{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--warn);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13.5px;color:var(--muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.demo b{color:var(--ink)}
+.demo select{max-width:100%;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 14px;cursor:pointer;font-size:14px;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.week{display:flex;align-items:center;gap:6px}
+.week strong{font-size:14.5px;min-width:0;text-align:center}
+.week small{color:var(--muted);font-size:12.5px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+.card h2{font-size:17px;margin:0}
+.card .sub{font-size:13px;color:var(--muted);margin:2px 0 14px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.head .sub{margin-bottom:0}
+.actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+label.f{display:block;font-size:13px;font-weight:600;margin:0 0 4px}
+.field{margin-bottom:12px}
+.field .hint{font-weight:400;color:var(--muted);font-size:12px}
+input[type=text],input[type=search],select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:14px}
+textarea{resize:vertical;min-height:110px;line-height:1.55}
+textarea.short{min-height:60px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+textarea:disabled{opacity:.75}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:760px){.cols{grid-template-columns:1fr}}
+.alert{border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13.5px;border:1px solid var(--line);background:var(--soft)}
+.alert.bad{border-color:color-mix(in srgb,var(--bad) 40%,transparent);background:color-mix(in srgb,var(--bad) 8%,transparent)}
+.alert.ok{border-color:color-mix(in srgb,var(--ok) 40%,transparent);background:color-mix(in srgb,var(--ok) 8%,transparent)}
+.alert b{display:block;margin-bottom:2px}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:12.5px;white-space:nowrap}
+td.nw{white-space:nowrap}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.detail td{background:var(--soft)}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;border-radius:99px;padding:1px 9px;white-space:nowrap}
+.pill.none{background:var(--soft);color:var(--muted)}
+.pill.draft{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.pill.submitted{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent)}
+.pill.returned{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.pill.approved{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+.pill.role{background:var(--soft);color:var(--ink);font-weight:600}
+.body{white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.6}
+.sec{margin-bottom:12px}
+.sec h4{margin:0 0 3px;font-size:13px;color:var(--muted)}
+.progress{height:6px;background:var(--soft);border-radius:99px;overflow:hidden;min-width:60px;margin-top:4px}
+.progress i{display:block;height:100%;background:var(--accent)}
+.nameedit{display:inline-flex;gap:4px;align-items:center}
+.nameedit input{width:110px;padding:3px 6px;font-size:13px}
+.empty{color:var(--muted);font-size:13.5px;padding:10px 0}
+.subtabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);padding:20px;width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 32px)}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+dialog h3{margin:0 0 4px;font-size:17px}
+dialog .checks{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;font-size:14px}
+dialog .foot{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100vw - 32px);z-index:50}
+#toast.show{opacity:1}
+#toast.err{background:var(--bad);color:#fff}
+#print{display:none}
+.loading{color:var(--muted);padding:30px 0;text-align:center}
+@media print{
+  body{background:#fff;color:#000;font-size:11pt}
+  .wrap > *:not(#print){display:none !important}
+  #print{display:block !important}
+  #print h1{font-size:16pt;margin:0 0 4pt}
+  #print h2{font-size:13pt;margin:14pt 0 4pt;border-bottom:1.5pt solid #000;padding-bottom:2pt}
+  #print h3{font-size:11.5pt;margin:10pt 0 2pt}
+  #print .meta{font-size:9.5pt;color:#444}
+  #print .blk{break-inside:avoid;margin-bottom:6pt}
+  #print .lbl{font-weight:700;font-size:10pt}
+  #print .body{font-size:10.5pt}
+  #print .mem{margin-left:10pt;border-left:1pt solid #999;padding-left:6pt}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>AX·정보화혁신본부 주간보고</h1>
+    <div class="who" id="who"></div>
+  </header>
+  <div id="demo" class="demo" hidden></div>
+  <div class="bar" id="bar" hidden>
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+    <div class="week">
+      <button class="btn sm" id="prevW" type="button" aria-label="이전 주">‹</button>
+      <div style="text-align:center"><strong id="weekLabel"></strong><br><small id="weekRange"></small></div>
+      <button class="btn sm" id="nextW" type="button" aria-label="다음 주">›</button>
+      <button class="btn sm" id="thisW" type="button">이번 주</button>
+    </div>
+  </div>
+  <main id="view"><div class="loading">불러오는 중…</div></main>
+  <div id="print"></div>
+</div>
+<dialog id="dlg"></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ───────────── 연결: GAS(운영) / Core.js + localStorage(데모) ─────────────
+  var LIVE = !!(window.google && google.script && google.script.run);
+  var DEMO_KEY = 'weekly-report-demo-v1';
+  var DEMO_USER_KEY = 'weekly-report-demo-user';
+
+  var demo = {
+    user: 'jm3280',
+    store: null,
+    init: function () {
+      try { this.user = localStorage.getItem(DEMO_USER_KEY) || this.user; } catch (e) {}
+      return new Promise(function (res, rej) {
+        var s = document.createElement('script');
+        s.src = 'core.js'; s.onload = res; s.onerror = function () { rej(new Error('core.js 를 불러오지 못했습니다.')); };
+        document.head.appendChild(s);
+      }).then(function () {
+        var saved = null;
+        try { saved = JSON.parse(localStorage.getItem(DEMO_KEY)); } catch (e) {}
+        demo.store = Core.MemoryStore(saved, function (d) { try { localStorage.setItem(DEMO_KEY, JSON.stringify(d)); } catch (e) {} });
+        if (Core.seed(demo.store)) seedDemoReports(demo.store);
+      });
+    },
+    call: function (m, a) {
+      try { return Promise.resolve(JSON.parse(JSON.stringify(Core.call(demo.store, demo.user, m, a).data))); }
+      catch (e) { return Promise.reject(e); }
+    }
+  };
+
+  function seedDemoReports(store) {
+    var w = Core.weekOf(), pw = addWeeks(w, -1), t = new Date().toISOString();
+    function rep(week, id, team, status, done, plan) {
+      store.save('reports', { id: week + '_' + id, week: week, personId: id, teamId: team, done: done, plan: plan, issue: '', status: status, updatedAt: t, submittedAt: status === 'submitted' ? t : '', returnNote: '', returnedBy: '' });
+    }
+    rep(pw, 'suk81', 'acad', 'submitted', '- 2학기 강의평가 문항 검토\n- 고등교육통계 2차 자료 제출', '- 강의평가 시스템 오픈 준비');
+    rep(pw, 'jm3280', 'acad', 'submitted', '- 2027학년도 교육과정 편성 자료 취합\n- 수강신청 시스템 정정기간 운영', '- 교육과정 편성 시스템 반영\n- 예비군 학적변동 연계 점검');
+    rep(w, 'suk81', 'acad', 'submitted', '- 강의평가 시스템 오픈 준비 완료\n- 교직 이수예정자 명단 확정', '- 강의평가 오픈(10/20)');
+    rep(w, 'emjeong', 'acad', 'submitted', '- 중간고사 성적입력 기간 안내\n- 국가장학금 2차 연계 점검', '- 성적 입력 기능 개선 배포');
+    rep(w, 'gowjd0710', 'acad', 'draft', '- 2026 후기 졸업사정 기준 정리', '');
+    rep(w, 'blue5tion', 'itplan', 'submitted', '- 정보화위원회 안건 준비', '- 정보화위원회 개최');
+    store.save('teamReports', { id: pw + '_acad', week: pw, teamId: 'acad', authorId: 'leehowon', done: '■ 교육과정·수강신청\n- 2027학년도 교육과정 편성 자료 취합\n■ 학적·통계\n- 고등교육통계 2차 자료 제출', plan: '- 강의평가 시스템 오픈 준비', issue: '', status: 'approved', updatedAt: t, submittedAt: t, reviewNote: '수고하셨습니다.', reviewerId: 'cheonhb', reviewedAt: t });
+  }
+
+  function call(method, args) {
+    if (!LIVE) return demo.call(method, args || {});
+    return new Promise(function (res, rej) {
+      google.script.run.withSuccessHandler(res)
+        .withFailureHandler(function (e) { rej(new Error((e && e.message) || String(e))); })
+        .api(method, args || {});
+    });
+  }
+
+  // ───────────── 유틸 ─────────────
+  function $(id) { return document.getElementById(id); }
+
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) {
+      var v = attrs[k];
+      if (v == null || v === false) return;
+      if (k === 'class') el.className = v;
+      else if (k === 'value') el.value = v;
+      else if (k === 'checked') el.checked = !!v;
+      else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) append(el, arguments[i]);
+    return el;
+  }
+  function append(el, k) {
+    if (k == null || k === false) return;
+    if (Array.isArray(k)) { k.forEach(function (x) { append(el, x); }); return; }
+    el.appendChild(k.nodeType ? k : document.createTextNode(String(k)));
+  }
+
+  function addWeeks(w, n) {
+    var d = new Date(w + 'T00:00:00Z');
+    d.setUTCDate(d.getUTCDate() + 7 * n);
+    return d.toISOString().slice(0, 10);
+  }
+  function weekOfNow() {
+    var d = new Date(Date.now() + 9 * 3600 * 1000);
+    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+    return d.toISOString().slice(0, 10);
+  }
+  function weekLabel(w) {
+    var thu = new Date(w + 'T00:00:00Z'); thu.setUTCDate(thu.getUTCDate() + 3);
+    return thu.getUTCFullYear() + '년 ' + (thu.getUTCMonth() + 1) + '월 ' + Math.ceil(thu.getUTCDate() / 7) + '주차';
+  }
+  function weekRange(w) {
+    var m = new Date(w + 'T00:00:00Z'), f = new Date(m); f.setUTCDate(f.getUTCDate() + 4);
+    return (m.getUTCMonth() + 1) + '.' + m.getUTCDate() + ' ~ ' + (f.getUTCMonth() + 1) + '.' + f.getUTCDate();
+  }
+  function fmt(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d)) return '';
+    return d.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+  }
+  var DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+  var STATUS = { draft: '작성 중', submitted: '제출', returned: '반려', approved: '확인' };
+  function pill(status, emptyText) {
+    return status ? h('span', { class: 'pill ' + status }, STATUS[status] || status) : h('span', { class: 'pill none' }, emptyText || '미작성');
+  }
+
+  var toastTimer;
+  function toast(msg, err) {
+    var t = $('toast');
+    t.textContent = msg; t.className = 'show' + (err ? ' err' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.className = ''; }, err ? 5000 : 2500);
+  }
+  function busy(btn, p) {
+    if (btn) btn.disabled = true;
+    return p.catch(function (e) { toast(e.message, true); throw e; })
+      .finally(function () { if (btn) btn.disabled = false; });
+  }
+
+  // ───────────── 상태 ─────────────
+  var S = { boot: null, week: weekOfNow(), tab: null, teamId: null, deptId: null, adminTab: 'people', open: {} };
+
+  function people() { return S.boot.people; }
+  function personById(id) { return people().filter(function (p) { return p.id === id; })[0]; }
+  function teamById(id) { return S.boot.teams.filter(function (t) { return t.id === id; })[0]; }
+  function deptById(id) { return S.boot.depts.filter(function (d) { return d.id === id; })[0]; }
+  function nameOf(id) { var p = personById(id); return p ? (p.name || p.id) : id; }
+
+  // ───────────── 이름 기억 ─────────────
+  // 업무분장표엔 이름이 없어서, 한 번 입력하면 people 에 저장하고 이후 계속 사용한다.
+  function rememberName(personId, name) {
+    return call('setName', { personId: personId, name: name }).then(function (r) {
+      var p = personById(r.id); if (p) p.name = r.name;
+      if (S.boot.me.id === r.id) S.boot.me.name = r.name;
+      renderWho();
+      return r;
+    });
+  }
+
+  function nameCell(p, editable) {
+    var wrap = h('span');
+    function show() {
+      wrap.textContent = '';
+      if (p.name) {
+        append(wrap, [h('b', null, p.name), ' ', h('span', { class: 'muted small' }, p.id)]);
+        if (editable) append(wrap, [' ', h('button', { class: 'link', type: 'button', title: '이름 수정', onclick: edit }, '수정')]);
+      } else {
+        append(wrap, h('span', { class: 'muted' }, p.id));
+        if (editable) append(wrap, [' ', h('button', { class: 'link', type: 'button', onclick: edit }, '이름 입력')]);
+      }
+    }
+    function edit() {
+      wrap.textContent = '';
+      var input = h('input', { type: 'text', value: p.name || '', maxlength: 20, placeholder: '이름', 'aria-label': p.id + ' 이름' });
+      function save() {
+        var v = input.value.trim();
+        if (!v) return show();
+        busy(ok, rememberName(p.id, v)).then(function (r) { p.name = r.name; show(); toast(p.id + ' → ' + r.name + ' 저장'); }, function () {});
+      }
+      var ok = h('button', { class: 'btn sm', type: 'button', onclick: save }, '저장');
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') save(); if (e.key === 'Escape') show(); });
+      append(wrap, h('span', { class: 'nameedit' }, input, ok));
+      input.focus();
+    }
+    show();
+    return wrap;
+  }
+
+  function askMyName() {
+    var me = S.boot.me;
+    if (me.name) return Promise.resolve();
+    return new Promise(function (resolve) {
+      openForm({
+        title: '이름을 입력해 주세요',
+        sub: '업무분장표에는 이메일 아이디만 있어서 처음 한 번만 입력합니다. 이후 보고서·현황에 이 이름이 표시됩니다.',
+        fields: [{ name: 'name', label: '이름 (' + me.id + '@pusan.ac.kr)', value: '', required: true, maxlength: 20 }],
+        submitText: '저장',
+        noCancel: true,
+        onSubmit: function (v) { return rememberName(me.id, v.name.trim()).then(function () { toast('이름이 저장되었습니다.'); resolve(); }); }
+      });
+    });
+  }
+
+  // ───────────── 공통 대화상자 ─────────────
+  function openForm(o) {
+    var dlg = $('dlg');
+    dlg.textContent = '';
+    var form = h('form', { method: 'dialog' });
+    append(form, h('h3', null, o.title));
+    if (o.sub) append(form, h('p', { class: 'muted small', style: 'margin:0 0 12px' }, o.sub));
+    var inputs = {};
+    var checks = h('div', { class: 'checks' });
+    o.fields.forEach(function (f) {
+      var id = 'f_' + f.name, el;
+      if (f.type === 'checkbox') {
+        el = h('input', { type: 'checkbox', id: id, checked: f.value });
+        inputs[f.name] = el;
+        append(checks, h('label', { for: id }, el, ' ', f.label));
+        return;
+      }
+      if (f.type === 'textarea') el = h('textarea', { id: id, class: 'short', value: f.value || '' });
+      else if (f.type === 'select') {
+        el = h('select', { id: id }, f.options.map(function (op) { return h('option', { value: op[0] }, op[1]); }));
+        el.value = f.value == null ? '' : f.value;
+      } else el = h('input', { type: 'text', id: id, value: f.value == null ? '' : f.value, readonly: f.readonly, required: f.required, maxlength: f.maxlength, list: f.list, placeholder: f.placeholder });
+      inputs[f.name] = el;
+      append(form, h('div', { class: 'field' }, h('label', { class: 'f', for: id }, f.label, f.hint ? h('span', { class: 'hint' }, ' · ' + f.hint) : null), el));
+    });
+    if (checks.childNodes.length) append(form, checks);
+    var err = h('div', { class: 'small', style: 'color:var(--bad);min-height:1.2em' });
+    var submit = h('button', { class: 'btn primary', type: 'submit' }, o.submitText || '저장');
+    var left = h('div', { class: 'actions' }, o.extra || null);
+    var right = h('div', { class: 'actions' }, o.noCancel ? null : h('button', { class: 'btn', type: 'button', onclick: function () { dlg.close(); } }, '취소'), submit);
+    append(form, [err, h('div', { class: 'foot' }, left, right)]);
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = {};
+      Object.keys(inputs).forEach(function (k) { v[k] = inputs[k].type === 'checkbox' ? inputs[k].checked : inputs[k].value; });
+      err.textContent = '';
+      submit.disabled = true;
+      Promise.resolve().then(function () { return o.onSubmit(v); })
+        .then(function () { dlg.close(); }, function (ex) { err.textContent = ex.message; })
+        .finally(function () { submit.disabled = false; });
+    });
+    function block(e) { e.preventDefault(); }
+    if (o.noCancel) {
+      dlg.addEventListener('cancel', block);
+      dlg.addEventListener('close', function () { dlg.removeEventListener('cancel', block); }, { once: true });
+    }
+    dlg.appendChild(form);
+    dlg.showModal();
+    var first = form.querySelector('input:not([readonly]),textarea,select');
+    if (first) first.focus();
+  }
+
+  // ───────────── 상단 ─────────────
+  function roles(me) {
+    var r = [];
+    if (me.chiefOf.length) r.push('과장');
+    if (me.leaderOf.length) r.push('팀장');
+    if (me.reporter) r.push('보고자');
+    if (me.isAdmin) r.push('관리자');
+    else if (me.isViewer) r.push('전체 열람');
+    return r;
+  }
+
+  function renderWho() {
+    var me = S.boot.me, t = teamById(me.teamId);
+    var w = $('who'); w.textContent = '';
+    append(w, [
+      h('span', null, h('b', null, me.name || me.id), ' · ', (t ? t.name + ' ' : '') + (me.position || '')),
+      roles(me).map(function (r) { return h('span', { class: 'pill role' }, r); }),
+      h('button', { class: 'btn sm', type: 'button', onclick: function () {
+        openForm({ title: '내 이름', fields: [{ name: 'name', label: '이름', value: me.name, required: true, maxlength: 20 }],
+          onSubmit: function (v) { return rememberName(me.id, v.name.trim()).then(function () { toast('저장되었습니다.'); render(); }); } });
+      } }, '이름 변경'),
+      h('button', { class: 'btn sm', type: 'button', onclick: toggleTheme }, '테마')
+    ]);
+  }
+
+  function toggleTheme() {
+    var root = document.documentElement;
+    var dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+    try { localStorage.setItem('theme', root.dataset.theme); } catch (e) {}
+  }
+  try { var th = localStorage.getItem('theme'); if (th) document.documentElement.dataset.theme = th; } catch (e) {}
+
+  function renderDemoBar() {
+    var d = $('demo'); d.hidden = false; d.textContent = '';
+    var sel = h('select', { 'aria-label': '데모 사용자', onchange: function () {
+      demo.user = sel.value;
+      try { localStorage.setItem(DEMO_USER_KEY, demo.user); } catch (e) {}
+      S.tab = null; S.open = {};
+      start();
+    } });
+    S.boot.depts.forEach(function (dp) {
+      var g = h('optgroup', { label: dp.name });
+      S.boot.teams.filter(function (t) { return t.deptId === dp.id; }).forEach(function (t) {
+        people().filter(function (p) { return p.teamId === t.id && p.active && p.id.charAt(0) !== '_'; }).forEach(function (p) {
+          append(g, h('option', { value: p.id }, t.name + ' · ' + (p.position || '') + ' · ' + (p.name || p.id)));
+        });
+      });
+      append(sel, g);
+    });
+    var top = h('optgroup', { label: '본부·과장' });
+    people().filter(function (p) { return !p.teamId && p.active; }).forEach(function (p) { append(top, h('option', { value: p.id }, (p.position || '') + ' · ' + (p.name || p.id))); });
+    sel.insertBefore(top, sel.firstChild);
+    sel.value = demo.user;
+    append(d, [
+      h('span', null, h('b', null, '데모 모드'), ' · 이 브라우저에만 저장됩니다. 실제 사용은 GAS 웹 앱(학교 구글 계정 로그인)으로 접속하세요.'),
+      h('label', null, '사용자 전환 ', sel),
+      h('button', { class: 'btn sm', type: 'button', onclick: function () {
+        if (!confirm('데모 데이터를 초기화할까요?')) return;
+        try { localStorage.removeItem(DEMO_KEY); } catch (e) {}
+        location.reload();
+      } }, '데모 초기화')
+    ]);
+  }
+
+  function tabsFor(me) {
+    var t = [];
+    if (me.reporter) t.push(['mine', '내 보고']);
+    if (me.leaderOf.length) t.push(['team', '팀 보고']);
+    if (me.chiefOf.length) t.push(['dept', '과 보고']);
+    if (me.isViewer) t.push(['all', '전체 현황']);
+    if (me.isAdmin) t.push(['admin', '관리']);
+    return t;
+  }
+
+  function renderBar() {
+    var tabs = tabsFor(S.boot.me);
+    $('bar').hidden = false;
+    var nav = $('tabs'); nav.textContent = '';
+    if (!S.tab || !tabs.some(function (t) { return t[0] === S.tab; })) {
+      var pref = ['dept', 'team', 'mine', 'all', 'admin'];
+      S.tab = pref.filter(function (p) { return tabs.some(function (t) { return t[0] === p; }); })[0] || null;
+    }
+    tabs.forEach(function (t) {
+      append(nav, h('button', { class: 'tab', type: 'button', role: 'tab', 'aria-selected': String(S.tab === t[0]), onclick: function () { S.tab = t[0]; S.open = {}; renderBar(); render(); } }, t[1]));
+    });
+    $('weekLabel').textContent = weekLabel(S.week) + (S.week === weekOfNow() ? ' (이번 주)' : '');
+    $('weekRange').textContent = weekRange(S.week);
+  }
+
+  $('prevW').onclick = function () { S.week = addWeeks(S.week, -1); S.open = {}; renderBar(); render(); };
+  $('nextW').onclick = function () { S.week = addWeeks(S.week, 1); S.open = {}; renderBar(); render(); };
+  $('thisW').onclick = function () { S.week = weekOfNow(); S.open = {}; renderBar(); render(); };
+
+  // ───────────── 화면 ─────────────
+  var renderSeq = 0;
+  function render() {
+    var seq = ++renderSeq;
+    var view = $('view');
+    var fn = { mine: viewMine, team: viewTeam, dept: viewDept, all: viewAll, admin: viewAdmin }[S.tab];
+    if (!fn) {
+      view.textContent = '';
+      append(view, h('div', { class: 'card' }, h('h2', null, '사용할 수 있는 메뉴가 없습니다'), h('p', { class: 'sub' }, '보고 대상 또는 권한이 지정되지 않았습니다. 관리자에게 문의하세요.')));
+      return;
+    }
+    Promise.resolve(fn()).then(function (nodes) {
+      if (seq !== renderSeq) return;
+      view.textContent = '';
+      append(view, nodes);
+    }).catch(function (e) {
+      if (seq !== renderSeq) return;
+      view.textContent = '';
+      append(view, h('div', { class: 'alert bad' }, h('b', null, '불러오지 못했습니다'), e.message));
+    });
+  }
+
+  function reportFields(r, disabled) {
+    var f = {
+      done: h('textarea', { id: 'r_done', value: r ? r.done : '', disabled: disabled, placeholder: '- 이번 주에 한 일' }),
+      plan: h('textarea', { id: 'r_plan', value: r ? r.plan : '', disabled: disabled, placeholder: '- 다음 주에 할 일' }),
+      issue: h('textarea', { id: 'r_issue', class: 'short', value: r ? r.issue : '', disabled: disabled, placeholder: '건의·협조 요청·특이사항 (선택)' })
+    };
+    f.node = [
+      h('div', { class: 'cols' },
+        h('div', { class: 'field' }, h('label', { class: 'f', for: 'r_done' }, '금주 실적'), f.done),
+        h('div', { class: 'field' }, h('label', { class: 'f', for: 'r_plan' }, '차주 계획'), f.plan)),
+      h('div', { class: 'field' }, h('label', { class: 'f', for: 'r_issue' }, '건의·특이사항 ', h('span', { class: 'hint' }, '(선택)')), f.issue)
+    ];
+    f.values = function () { return { done: f.done.value, plan: f.plan.value, issue: f.issue.value }; };
+    return f;
+  }
+
+  function reportBody(r) {
+    if (!r) return h('div', { class: 'empty' }, '작성된 내용이 없습니다.');
+    return [
+      h('div', { class: 'sec' }, h('h4', null, '금주 실적'), h('div', { class: 'body' }, r.done || '–')),
+      h('div', { class: 'sec' }, h('h4', null, '차주 계획'), h('div', { class: 'body' }, r.plan || '–')),
+      r.issue ? h('div', { class: 'sec' }, h('h4', null, '건의·특이사항'), h('div', { class: 'body' }, r.issue)) : null
+    ];
+  }
+
+  // ── 내 보고 ──
+  function viewMine() {
+    var me = S.boot.me, week = S.week, st = S.boot.settings;
+    return Promise.all([call('myReport', { week: week }), call('myHistory')]).then(function (res) {
+      var r = res[0].report, locked = res[0].locked, hist = res[1];
+      var t = teamById(me.teamId);
+      var f = reportFields(r, locked);
+
+      function save(submit, btn) {
+        busy(btn, call('saveMyReport', Object.assign({ week: week, submit: submit }, f.values())))
+          .then(function () { toast(submit ? '팀장님께 제출했습니다.' : '임시저장했습니다.'); render(); }, function () {});
+      }
+      var bSave = h('button', { class: 'btn', type: 'button', disabled: locked, onclick: function () { save(false, bSave); } }, '임시저장');
+      var bSubmit = h('button', { class: 'btn primary', type: 'button', disabled: locked, onclick: function () { save(true, bSubmit); } }, r && r.status === 'submitted' ? '수정 후 다시 제출' : '팀장님께 제출');
+      var bPrev = h('button', { class: 'btn sm', type: 'button', disabled: locked, onclick: function () {
+        busy(bPrev, call('myReport', { week: addWeeks(week, -1) })).then(function (p) {
+          if (!p.report || !p.report.plan) return toast('지난주 차주 계획이 없습니다.', true);
+          f.done.value = (f.done.value ? f.done.value.replace(/\s+$/, '') + '\n' : '') + p.report.plan;
+          toast('지난주 "차주 계획"을 금주 실적에 넣었습니다.');
+        }, function () {});
+      } }, '지난주 계획 가져오기');
+
+      var card = h('section', { class: 'card' },
+        h('div', { class: 'head' },
+          h('div', null, h('h2', null, '내 주간보고 ', pill(r && r.status)),
+            h('p', { class: 'sub' }, (t ? t.name : '소속 없음') + ' · 개인 보고 마감 매주 ' + DAYS[st.personalDueDay] + '요일' + (r && r.submittedAt ? ' · 제출 ' + fmt(r.submittedAt) : ''))),
+          h('div', { class: 'actions' }, bPrev)),
+        r && r.status === 'returned' ? h('div', { class: 'alert bad' }, h('b', null, '반려됨 — ' + nameOf(r.returnedBy)), r.returnNote) : null,
+        locked ? h('div', { class: 'alert' }, '팀 보고가 과장님께 제출되어 수정할 수 없습니다. 수정이 필요하면 팀장님께 요청하세요.') : null,
+        f.node,
+        h('div', { class: 'actions' }, bSave, bSubmit,
+          locked ? null : h('span', { class: 'muted small' }, '제출 후에도 팀 보고가 올라가기 전까지 수정할 수 있습니다.')));
+
+      var histCard = h('section', { class: 'card' }, h('h2', null, '최근 보고'), h('p', { class: 'sub' }, '주차를 누르면 해당 주로 이동합니다.'),
+        hist.length ? h('div', { class: 'tbl' }, h('table', null,
+          h('thead', null, h('tr', null, h('th', null, '주차'), h('th', null, '상태'), h('th', null, '제출'), h('th', null, '반려 사유'))),
+          h('tbody', null, hist.map(function (x) {
+            return h('tr', null,
+              h('td', { class: 'nw' }, h('button', { class: 'link', type: 'button', onclick: function () { S.week = x.week; renderBar(); render(); } }, weekLabel(x.week))),
+              h('td', null, pill(x.status)), h('td', { class: 'num' }, fmt(x.submittedAt)), h('td', { class: 'small' }, x.status === 'returned' ? x.returnNote : ''));
+          })))) : h('div', { class: 'empty' }, '아직 작성한 보고가 없습니다.'));
+      return [card, histCard];
+    });
+  }
+
+  // ── 팀 보고 (팀장) ──
+  function pickSelect(list, current, label, onChange) {
+    if (list.length < 2) return null;
+    var sel = h('select', { 'aria-label': label, style: 'width:auto', onchange: function () { onChange(sel.value); } },
+      list.map(function (x) { return h('option', { value: x.id }, x.name); }));
+    sel.value = current;
+    return sel;
+  }
+
+  function compileMembers(members, key) {
+    return members.filter(function (m) { return m.report && m.report.status === 'submitted' && m.report[key]; })
+      .map(function (m) { return '■ ' + (m.person.name || m.person.id) + '\n' + m.report[key].replace(/\s+$/, ''); })
+      .join('\n\n');
+  }
+
+  function viewTeam() {
+    var me = S.boot.me, week = S.week;
+    var myTeams = me.leaderOf.map(teamById).filter(Boolean);
+    if (!S.teamId || me.leaderOf.indexOf(S.teamId) < 0) S.teamId = myTeams[0].id;
+    return call('teamWeek', { teamId: S.teamId, week: week }).then(function (d) {
+      var mem = d.members, tr = d.teamReport;
+      var submitted = mem.filter(function (m) { return m.report && m.report.status === 'submitted'; }).length;
+      var approved = tr && tr.status === 'approved';
+
+      var rows = [];
+      mem.forEach(function (m) {
+        var r = m.report, key = 'm_' + m.person.id;
+        var toggle = h('button', { class: 'btn sm', type: 'button', disabled: !r, onclick: function () { S.open[key] = !S.open[key]; render(); } }, S.open[key] ? '닫기' : '보기');
+        rows.push(h('tr', null,
+          h('td', { class: 'nw' }, nameCell(m.person, m.canName)),
+          h('td', { class: 'small muted' }, m.person.duty),
+          h('td', null, pill(r && r.status)),
+          h('td', { class: 'num' }, r ? fmt(r.submittedAt || r.updatedAt) : ''),
+          h('td', null, toggle)));
+        if (r && S.open[key]) {
+          var note = h('textarea', { class: 'short', placeholder: '반려 사유' });
+          var bRet = h('button', { class: 'btn sm danger', type: 'button', onclick: function () {
+            busy(bRet, call('returnReport', { id: r.id, note: note.value })).then(function () { toast('반려했습니다.'); render(); }, function () {});
+          } }, '반려');
+          rows.push(h('tr', { class: 'detail' }, h('td', { colspan: 5 },
+            r.status === 'returned' ? h('div', { class: 'alert bad' }, h('b', null, '반려 사유'), r.returnNote) : null,
+            reportBody(r),
+            d.canEdit && r.status === 'submitted' ? h('div', { class: 'field', style: 'margin:8px 0 0' }, note, h('div', { class: 'actions', style: 'margin-top:6px' }, bRet)) : null)));
+        }
+      });
+
+      var memberCard = h('section', { class: 'card' },
+        h('div', { class: 'head' },
+          h('div', null, h('h2', null, d.team.name + ' 팀원 보고'),
+            h('p', { class: 'sub' }, '제출 ' + submitted + ' / ' + mem.length + '명 · 이름이 비어 있으면 "이름 입력"을 눌러 저장하세요.')),
+          h('div', { class: 'actions' }, pickSelect(myTeams, S.teamId, '팀 선택', function (v) { S.teamId = v; S.open = {}; render(); }))),
+        mem.length ? h('div', { class: 'tbl' }, h('table', null,
+          h('thead', null, h('tr', null, h('th', null, '이름'), h('th', null, '담당업무'), h('th', null, '상태'), h('th', null, '제출'), h('th', null, ''))),
+          h('tbody', null, rows))) : h('div', { class: 'empty' }, '보고 대상 팀원이 없습니다. 팀 보고만 작성하면 됩니다.'));
+
+      var f = reportFields(tr, approved || !d.canEdit);
+      function save(submit, btn) {
+        busy(btn, call('saveTeamReport', Object.assign({ teamId: S.teamId, week: week, submit: submit }, f.values())))
+          .then(function () { toast(submit ? '과장님께 제출했습니다.' : '임시저장했습니다.'); render(); }, function () {});
+      }
+      var bLoad = h('button', { class: 'btn sm', type: 'button', disabled: approved, onclick: function () {
+        if ((f.done.value || f.plan.value) && !confirm('작성 중인 내용을 팀원 보고로 덮어쓸까요?')) return;
+        f.done.value = compileMembers(mem, 'done');
+        f.plan.value = compileMembers(mem, 'plan');
+        f.issue.value = compileMembers(mem, 'issue');
+        toast('제출된 팀원 보고 ' + submitted + '건을 불러왔습니다. 다듬은 뒤 제출하세요.');
+      } }, '팀원 보고 불러오기');
+      var bSave = h('button', { class: 'btn', type: 'button', disabled: approved, onclick: function () { save(false, bSave); } }, '임시저장');
+      var bSubmit = h('button', { class: 'btn primary', type: 'button', disabled: approved, onclick: function () { save(true, bSubmit); } }, tr && tr.status === 'submitted' ? '수정 후 다시 제출' : '과장님께 제출');
+
+      var teamCard = h('section', { class: 'card' },
+        h('div', { class: 'head' },
+          h('div', null, h('h2', null, d.team.name + ' 팀 보고 ', pill(tr && tr.status)),
+            h('p', { class: 'sub' }, '팀 보고 마감 매주 ' + DAYS[S.boot.settings.teamDueDay] + '요일' + (tr && tr.submittedAt ? ' · 제출 ' + fmt(tr.submittedAt) : ''))),
+          h('div', { class: 'actions' }, bLoad)),
+        tr && tr.status === 'returned' ? h('div', { class: 'alert bad' }, h('b', null, '과장님 반려 — ' + nameOf(tr.reviewerId)), tr.reviewNote) : null,
+        approved ? h('div', { class: 'alert ok' }, h('b', null, '과장님 확인 완료 ' + fmt(tr.reviewedAt)), tr.reviewNote || '') : null,
+        f.node,
+        h('div', { class: 'actions' }, bSave, bSubmit));
+      return [memberCard, teamCard];
+    });
+  }
+
+  // ── 과 보고 (과장) / 전체 현황 ──
+  function teamTable(rows, canReview, week) {
+    var trs = [];
+    rows.forEach(function (row) {
+      var tr = row.teamReport, key = 't_' + row.team.id;
+      var pct = row.total ? Math.round(row.submitted / row.total * 100) : 0;
+      trs.push(h('tr', null,
+        h('td', { class: 'nw' }, h('b', null, row.team.name)),
+        h('td', { class: 'nw' }, row.leaders.join(', ')),
+        h('td', { class: 'num' }, row.total ? row.submitted + ' / ' + row.total : '–', row.total ? h('div', { class: 'progress' }, h('i', { style: 'width:' + pct + '%' })) : null),
+        h('td', null, pill(tr && tr.status)),
+        h('td', { class: 'num' }, tr ? fmt(tr.submittedAt) : ''),
+        h('td', null, h('button', { class: 'btn sm', type: 'button', onclick: function () { S.open[key] = !S.open[key]; render(); } }, S.open[key] ? '닫기' : '보기'))));
+      if (!S.open[key]) return;
+
+      var detail = h('td', { colspan: 6 });
+      append(detail, tr ? reportBody(tr) : h('div', { class: 'empty' }, '팀 보고가 아직 없습니다.'));
+      if (tr && tr.reviewNote) append(detail, h('div', { class: 'alert ' + (tr.status === 'returned' ? 'bad' : 'ok') }, h('b', null, (tr.status === 'returned' ? '반려 의견' : '확인 의견') + ' — ' + nameOf(tr.reviewerId)), tr.reviewNote));
+      if (canReview && tr && (tr.status === 'submitted' || tr.status === 'approved')) {
+        var note = h('textarea', { class: 'short', placeholder: '의견 (반려 시 필수)' });
+        var bOk = h('button', { class: 'btn primary sm', type: 'button', disabled: tr.status === 'approved', onclick: function () { review('approve', bOk); } }, '확인');
+        var bNo = h('button', { class: 'btn danger sm', type: 'button', onclick: function () { review('return', bNo); } }, '반려');
+        function review(action, btn) {
+          busy(btn, call('reviewTeamReport', { id: tr.id, action: action, note: note.value }))
+            .then(function () { toast(action === 'approve' ? '확인 처리했습니다.' : '반려했습니다.'); render(); }, function () {});
+        }
+        append(detail, h('div', { class: 'field', style: 'margin-top:8px' }, note, h('div', { class: 'actions', style: 'margin-top:6px' }, bOk, bNo)));
+      }
+      // 팀원 개별 보고 펼쳐보기
+      var memBox = h('div', { style: 'margin-top:10px' });
+      var bMem = h('button', { class: 'btn sm', type: 'button', onclick: function () {
+        busy(bMem, call('teamWeek', { teamId: row.team.id, week: week })).then(function (d) {
+          memBox.textContent = '';
+          var subs = d.members.filter(function (m) { return m.report && m.report.status === 'submitted'; });
+          if (!subs.length) return append(memBox, h('div', { class: 'empty' }, '제출된 팀원 보고가 없습니다.'));
+          subs.forEach(function (m) {
+            append(memBox, h('div', { class: 'card', style: 'padding:12px;margin-bottom:8px' },
+              h('div', { style: 'margin-bottom:6px' }, nameCell(m.person, m.canName), ' ', h('span', { class: 'muted small' }, fmt(m.report.submittedAt))),
+              reportBody(m.report)));
+          });
+        }, function () {});
+      } }, '팀원 개별 보고 보기');
+      append(detail, [h('div', null, bMem), memBox]);
+      trs.push(h('tr', { class: 'detail' }, detail));
+    });
+    return h('div', { class: 'tbl' }, h('table', null,
+      h('thead', null, h('tr', null, h('th', null, '팀'), h('th', null, '팀장'), h('th', null, '팀원 제출'), h('th', null, '팀 보고'), h('th', null, '제출'), h('th', null, ''))),
+      h('tbody', null, trs)));
+  }
+
+  function printControls(deptId) {
+    var withMem = h('input', { type: 'checkbox', id: 'pm' });
+    var b = h('button', { class: 'btn', type: 'button', onclick: function () {
+      busy(b, call('compiled', { deptId: deptId, week: S.week, withMembers: withMem.checked })).then(function (data) { printCompiled(data); }, function () {});
+    } }, '취합본 인쇄');
+    return [h('label', { class: 'small', for: 'pm' }, withMem, ' 팀원 보고 포함'), b];
+  }
+
+  function viewDept() {
+    var me = S.boot.me;
+    var myDepts = me.chiefOf.map(deptById).filter(Boolean);
+    if (!S.deptId || me.chiefOf.indexOf(S.deptId) < 0) S.deptId = myDepts[0].id;
+    return call('deptWeek', { deptId: S.deptId, week: S.week }).then(function (d) {
+      var done = d.teams.filter(function (r) { return r.teamReport && (r.teamReport.status === 'submitted' || r.teamReport.status === 'approved'); }).length;
+      var ok = d.teams.filter(function (r) { return r.teamReport && r.teamReport.status === 'approved'; }).length;
+      return h('section', { class: 'card' },
+        h('div', { class: 'head' },
+          h('div', null, h('h2', null, d.dept.name + ' 주간보고'),
+            h('p', { class: 'sub' }, '팀 보고 제출 ' + done + ' / ' + d.teams.length + ' · 확인 ' + ok)),
+          h('div', { class: 'actions' },
+            pickSelect(myDepts, S.deptId, '과 선택', function (v) { S.deptId = v; S.open = {}; render(); }),
+            printControls(S.deptId))),
+        teamTable(d.teams, d.canReview, S.week));
+    });
+  }
+
+  function viewAll() {
+    return call('compiled', { deptId: '*', week: S.week, withMembers: false }).then(function (list) {
+      var head = h('section', { class: 'card' },
+        h('div', { class: 'head' },
+          h('div', null, h('h2', null, '본부 전체 현황'), h('p', { class: 'sub' }, '과별 팀 보고 제출·확인 현황 (열람 전용)')),
+          h('div', { class: 'actions' }, printControls('*'))));
+      return [head].concat(list.map(function (d) {
+        return h('section', { class: 'card' }, h('h2', { style: 'margin-bottom:10px' }, d.dept.name), teamTable(d.teams, false, S.week));
+      }));
+    });
+  }
+
+  function printCompiled(list) {
+    var p = $('print'); p.textContent = '';
+    append(p, [h('h1', null, 'AX·정보화혁신본부 주간업무보고'), h('div', { class: 'meta' }, weekLabel(S.week) + ' (' + weekRange(S.week) + ') · 출력 ' + fmt(new Date().toISOString()))]);
+    list.forEach(function (d) {
+      append(p, h('h2', null, d.dept.name));
+      d.teams.forEach(function (row) {
+        var tr = row.teamReport;
+        var blk = h('div', { class: 'blk' }, h('h3', null, row.team.name, ' ', h('span', { class: 'meta' }, '팀장 ' + row.leaders.join(', ') + ' · ' + (tr ? STATUS[tr.status] : '미작성'))));
+        if (tr) {
+          append(blk, [h('div', { class: 'lbl' }, '금주 실적'), h('div', { class: 'body' }, tr.done || '–'), h('div', { class: 'lbl' }, '차주 계획'), h('div', { class: 'body' }, tr.plan || '–')]);
+          if (tr.issue) append(blk, [h('div', { class: 'lbl' }, '건의·특이사항'), h('div', { class: 'body' }, tr.issue)]);
+        }
+        (row.memberReports || []).forEach(function (m) {
+          append(blk, h('div', { class: 'mem' }, h('div', { class: 'lbl' }, '· ' + m.name), h('div', { class: 'body' }, m.done), m.plan ? h('div', { class: 'body' }, '→ ' + m.plan) : null));
+        });
+        append(p, blk);
+      });
+    });
+    window.print();
+  }
+
+  // ── 관리 ──
+  function viewAdmin() {
+    var tabs = [['people', '구성원'], ['teams', '팀'], ['depts', '과'], ['settings', '설정']];
+    var sub = h('div', { class: 'subtabs' }, tabs.map(function (t) {
+      return h('button', { class: 'tab', type: 'button', 'aria-selected': String(S.adminTab === t[0]), onclick: function () { S.adminTab = t[0]; render(); } }, t[1]);
+    }));
+    var body = { people: adminPeople, teams: adminTeams, depts: adminDepts, settings: adminSettings }[S.adminTab]();
+    return [sub, body];
+  }
+
+  function reload() {
+    return call('bootstrap').then(function (b) { S.boot = b; renderWho(); renderBar(); render(); });
+  }
+
+  function teamOptions(blank) {
+    var o = blank ? [['', '(소속 없음 · 본부/과장)']] : [];
+    S.boot.depts.forEach(function (d) {
+      S.boot.teams.filter(function (t) { return t.deptId === d.id; }).forEach(function (t) { o.push([t.id, d.name + ' › ' + t.name]); });
+    });
+    return o;
+  }
+
+  function idList() {
+    var dl = $('peopleIds');
+    if (!dl) { dl = h('datalist', { id: 'peopleIds' }); document.body.appendChild(dl); }
+    dl.textContent = '';
+    people().forEach(function (p) { append(dl, h('option', { value: p.id }, p.name || '')); });
+    return 'peopleIds';
+  }
+
+  function editPerson(p) {
+    var isNew = !p;
+    p = p || { id: '', name: '', position: '주무관', teamId: '', duty: '', phone: '', reporter: true, admin: false, viewer: false, active: true };
+    openForm({
+      title: isNew ? '구성원 추가' : '구성원 편집 — ' + (p.name || p.id),
+      fields: [
+        { name: 'id', label: '이메일 아이디', hint: '@pusan.ac.kr 앞부분', value: p.id, readonly: !isNew, required: true },
+        { name: 'name', label: '이름', value: p.name, maxlength: 20 },
+        { name: 'position', label: '직위/직급', value: p.position },
+        { name: 'teamId', label: '소속 팀', type: 'select', options: teamOptions(true), value: p.teamId },
+        { name: 'phone', label: '전화번호', value: p.phone },
+        { name: 'duty', label: '담당업무', type: 'textarea', value: p.duty },
+        { name: 'reporter', label: '개인 보고 대상', type: 'checkbox', value: p.reporter },
+        { name: 'viewer', label: '전체 열람', type: 'checkbox', value: p.viewer },
+        { name: 'admin', label: '관리자', type: 'checkbox', value: p.admin },
+        { name: 'active', label: '사용', type: 'checkbox', value: p.active }
+      ],
+      extra: isNew ? null : h('button', { class: 'btn danger', type: 'button', onclick: function () {
+        if (!confirm(p.id + ' 를 삭제할까요? 작성한 보고는 남습니다.')) return;
+        call('removePerson', { id: p.id }).then(function () { $('dlg').close(); toast('삭제했습니다.'); reload(); }, function (e) { toast(e.message, true); });
+      } }, '삭제'),
+      onSubmit: function (v) { return call('savePerson', { person: v, isNew: isNew }).then(function () { toast('저장했습니다.'); return reload(); }); }
+    });
+  }
+
+  function adminPeople() {
+    var q = h('input', { type: 'search', placeholder: '아이디·이름·업무 검색', style: 'max-width:260px' });
+    var tf = h('select', { style: 'width:auto' }, h('option', { value: '' }, '전체 팀'), teamOptions(true).map(function (o) { return h('option', { value: o[0] || '-' }, o[0] ? o[1] : '소속 없음'); }));
+    var tbody = h('tbody');
+    var noName = people().filter(function (p) { return !p.name && p.id.charAt(0) !== '_'; }).length;
+    function draw() {
+      var s = q.value.trim().toLowerCase(), team = tf.value;
+      tbody.textContent = '';
+      people().slice().sort(function (a, b) {
+        var ta = teamById(a.teamId), tb = teamById(b.teamId);
+        var oa = ta ? (deptById(ta.deptId) || {}).order * 100 + ta.order : -1, ob = tb ? (deptById(tb.deptId) || {}).order * 100 + tb.order : -1;
+        return (oa - ob) || (a.reporter - b.reporter) || a.id.localeCompare(b.id);
+      }).filter(function (p) {
+        if (team && (team === '-' ? p.teamId : p.teamId !== team)) return false;
+        return !s || [p.id, p.name, p.duty, p.position].join(' ').toLowerCase().indexOf(s) >= 0;
+      }).forEach(function (p) {
+        var t = teamById(p.teamId);
+        append(tbody, h('tr', null,
+          h('td', { class: 'nw' }, nameCell(p, p.id.charAt(0) !== '_')),
+          h('td', { class: 'nw' }, p.position),
+          h('td', { class: 'nw' }, t ? t.name : h('span', { class: 'muted' }, '–')),
+          h('td', { class: 'small muted' }, p.duty),
+          h('td', { class: 'nw small' }, [p.reporter ? '보고' : null, p.viewer ? '열람' : null, p.admin ? '관리' : null, p.active ? null : '중지'].filter(Boolean).join(' · ')),
+          h('td', null, h('button', { class: 'btn sm', type: 'button', onclick: function () { editPerson(p); } }, '편집'))));
+      });
+    }
+    q.addEventListener('input', draw); tf.addEventListener('change', draw); draw();
+    return h('section', { class: 'card' },
+      h('div', { class: 'head' },
+        h('div', null, h('h2', null, '구성원 ' + people().length + '명'),
+          h('p', { class: 'sub' }, noName ? '이름 미입력 ' + noName + '명 — "이름 입력"을 눌러 바로 저장할 수 있습니다. 본인이 처음 접속할 때도 입력합니다.' : '모든 구성원의 이름이 입력되어 있습니다.')),
+        h('div', { class: 'actions' }, q, tf, h('button', { class: 'btn primary', type: 'button', onclick: function () { editPerson(null); } }, '구성원 추가'))),
+      h('div', { class: 'tbl' }, h('table', null,
+        h('thead', null, h('tr', null, h('th', null, '이름 / 아이디'), h('th', null, '직위'), h('th', null, '소속'), h('th', null, '담당업무'), h('th', null, '구분'), h('th', null, ''))),
+        tbody)));
+  }
+
+  function editTeam(t) {
+    var isNew = !t;
+    t = t || { id: '', name: '', deptId: S.boot.depts[0] && S.boot.depts[0].id, leaderIds: '', order: 0 };
+    openForm({
+      title: isNew ? '팀 추가' : '팀 편집 — ' + t.name,
+      fields: [
+        { name: 'id', label: '팀 코드', hint: '영문, 변경 불가', value: t.id, readonly: !isNew, required: true },
+        { name: 'name', label: '팀 이름', value: t.name, required: true },
+        { name: 'deptId', label: '소속 과', type: 'select', options: S.boot.depts.map(function (d) { return [d.id, d.name]; }), value: t.deptId },
+        { name: 'leaderIds', label: '팀장 아이디', hint: '여러 명이면 쉼표로 구분', value: t.leaderIds, list: idList() },
+        { name: 'order', label: '표시 순서', value: String(t.order) }
+      ],
+      extra: isNew ? null : h('button', { class: 'btn danger', type: 'button', onclick: function () {
+        if (!confirm(t.name + ' 팀을 삭제할까요?')) return;
+        call('removeTeam', { id: t.id }).then(function () { $('dlg').close(); toast('삭제했습니다.'); reload(); }, function (e) { toast(e.message, true); });
+      } }, '삭제'),
+      onSubmit: function (v) { return call('saveTeam', { team: v, isNew: isNew }).then(function () { toast('저장했습니다.'); return reload(); }); }
+    });
+  }
+
+  function adminTeams() {
+    return h('section', { class: 'card' },
+      h('div', { class: 'head' }, h('div', null, h('h2', null, '팀'), h('p', { class: 'sub' }, '팀장은 팀원 보고를 취합해 과장에게 올립니다. 한 사람이 여러 팀의 팀장일 수 있습니다.')),
+        h('button', { class: 'btn primary', type: 'button', onclick: function () { editTeam(null); } }, '팀 추가')),
+      h('div', { class: 'tbl' }, h('table', null,
+        h('thead', null, h('tr', null, h('th', null, '과'), h('th', null, '팀'), h('th', null, '팀장'), h('th', null, '보고 대상'), h('th', null, '순서'), h('th', null, ''))),
+        h('tbody', null, S.boot.teams.map(function (t) {
+          var n = people().filter(function (p) { return p.teamId === t.id && p.reporter && p.active; }).length;
+          return h('tr', null,
+            h('td', { class: 'nw' }, (deptById(t.deptId) || {}).name || t.deptId), h('td', { class: 'nw' }, h('b', null, t.name)),
+            h('td', null, t.leaderIds.split(',').filter(Boolean).map(function (id) { return nameOf(id.trim()); }).join(', ')),
+            h('td', { class: 'num' }, n + '명'), h('td', { class: 'num' }, t.order),
+            h('td', null, h('button', { class: 'btn sm', type: 'button', onclick: function () { editTeam(t); } }, '편집')));
+        })))));
+  }
+
+  function editDept(d) {
+    var isNew = !d;
+    d = d || { id: '', name: '', chiefIds: '', order: 0 };
+    openForm({
+      title: isNew ? '과 추가' : '과 편집 — ' + d.name,
+      fields: [
+        { name: 'id', label: '과 코드', hint: '영문, 변경 불가', value: d.id, readonly: !isNew, required: true },
+        { name: 'name', label: '과 이름', value: d.name, required: true },
+        { name: 'chiefIds', label: '과장 아이디', hint: '여러 명이면 쉼표로 구분', value: d.chiefIds, list: idList() },
+        { name: 'order', label: '표시 순서', value: String(d.order) }
+      ],
+      extra: isNew ? null : h('button', { class: 'btn danger', type: 'button', onclick: function () {
+        if (!confirm(d.name + ' 을(를) 삭제할까요?')) return;
+        call('removeDept', { id: d.id }).then(function () { $('dlg').close(); toast('삭제했습니다.'); reload(); }, function (e) { toast(e.message, true); });
+      } }, '삭제'),
+      onSubmit: function (v) { return call('saveDept', { dept: v, isNew: isNew }).then(function () { toast('저장했습니다.'); return reload(); }); }
+    });
+  }
+
+  function adminDepts() {
+    return h('section', { class: 'card' },
+      h('div', { class: 'head' }, h('div', null, h('h2', null, '과'), h('p', { class: 'sub' }, '과장은 소속 팀의 팀 보고를 확인·반려하고 취합본을 출력합니다.')),
+        h('button', { class: 'btn primary', type: 'button', onclick: function () { editDept(null); } }, '과 추가')),
+      h('div', { class: 'tbl' }, h('table', null,
+        h('thead', null, h('tr', null, h('th', null, '과'), h('th', null, '과장'), h('th', null, '팀 수'), h('th', null, '순서'), h('th', null, ''))),
+        h('tbody', null, S.boot.depts.map(function (d) {
+          return h('tr', null, h('td', null, h('b', null, d.name)),
+            h('td', null, d.chiefIds.split(',').filter(Boolean).map(function (id) { return nameOf(id.trim()); }).join(', ')),
+            h('td', { class: 'num' }, S.boot.teams.filter(function (t) { return t.deptId === d.id; }).length),
+            h('td', { class: 'num' }, d.order),
+            h('td', null, h('button', { class: 'btn sm', type: 'button', onclick: function () { editDept(d); } }, '편집')));
+        })))));
+  }
+
+  function adminSettings() {
+    var s = S.boot.settings;
+    var dayOpts = [1, 2, 3, 4, 5].map(function (d) { return h('option', { value: String(d) }, DAYS[d] + '요일'); });
+    var pd = h('select', { id: 's_pd' }, dayOpts.map(function (o) { return o.cloneNode(true); })); pd.value = s.personalDueDay;
+    var td = h('select', { id: 's_td' }, dayOpts); td.value = s.teamDueDay;
+    var nt = h('input', { type: 'checkbox', id: 's_nt', checked: s.notify === 'true' });
+    var rm = h('input', { type: 'checkbox', id: 's_rm', checked: s.remind === 'true' });
+    var b = h('button', { class: 'btn primary', type: 'button', onclick: function () {
+      busy(b, call('saveSettings', { settings: { personalDueDay: pd.value, teamDueDay: td.value, notify: nt.checked, remind: rm.checked } }))
+        .then(function () { toast('저장했습니다.'); reload(); }, function () {});
+    } }, '저장');
+    return h('section', { class: 'card' }, h('h2', null, '설정'), h('p', { class: 'sub' }, '메일은 GAS 운영 모드에서만 발송됩니다.'),
+      h('div', { class: 'cols' },
+        h('div', { class: 'field' }, h('label', { class: 'f', for: 's_pd' }, '개인 보고 마감'), pd),
+        h('div', { class: 'field' }, h('label', { class: 'f', for: 's_td' }, '팀 보고 마감'), td)),
+      h('div', { class: 'field' }, h('label', { for: 's_nt' }, nt, ' 제출·반려·확인 시 알림 메일')),
+      h('div', { class: 'field' }, h('label', { for: 's_rm' }, rm, ' 마감일 09시에 미제출자 리마인더 메일')),
+      b);
+  }
+
+  // ───────────── 시작 ─────────────
+  function start() {
+    $('view').textContent = '';
+    append($('view'), h('div', { class: 'loading' }, '불러오는 중…'));
+    return call('bootstrap').then(function (b) {
+      S.boot = b;
+      renderWho();
+      if (!LIVE) renderDemoBar();
+      renderBar();
+      render();
+      return askMyName();
+    }).catch(function (e) {
+      $('view').textContent = '';
+      append($('view'), h('div', { class: 'alert bad' }, h('b', null, '시작할 수 없습니다'), e.message));
+    });
+  }
+
+  (LIVE ? Promise.resolve() : demo.init()).then(start, function (e) {
+    $('view').textContent = '';
+    append($('view'), h('div', { class: 'alert bad' }, e.message));
+  });
+})();
+</script>
+</body>
+</html>

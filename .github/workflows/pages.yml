@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-    paths: ['site/**', '.github/workflows/pages.yml']
+    paths: ['gas/Index.html', 'gas/Core.js', '.github/workflows/pages.yml']
   workflow_dispatch:
 
 permissions:
@@ -24,8 +24,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      # GAS 화면(Index.html)과 로직(Core.js)을 그대로 데모로 올린다.
+      - name: Build demo
+        run: |
+          mkdir -p _site
+          cp gas/Index.html _site/index.html
+          cp gas/Core.js _site/core.js
+          touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
