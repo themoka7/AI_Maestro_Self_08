@@ -1,0 +1,51 @@
+name: Deploy Apps Script
+
+# 시크릿 2개가 있을 때만 동작한다.
+#   CLASPRC_JSON    : 로컬에서 `npx @google/clasp login` 후 ~/.clasprc.json 내용
+#   GAS_SCRIPT_ID   : Apps Script 프로젝트 ID
+# 선택 시크릿 GAS_DEPLOYMENT_ID 가 있으면 같은 웹 앱 URL 을 유지한 채 새 버전으로 갱신한다.
+
+on:
+  push:
+    branches: [main, claude/tender-goldberg-u981a8]
+    paths: ['gas/**', '.github/workflows/gas-deploy.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+      GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
+      GAS_DEPLOYMENT_ID: ${{ secrets.GAS_DEPLOYMENT_ID }}
+    steps:
+      - name: Check secrets
+        id: check
+        run: |
+          if [ -z "$CLASPRC_JSON" ] || [ -z "$GAS_SCRIPT_ID" ]; then
+            echo "::notice::CLASPRC_JSON / GAS_SCRIPT_ID 시크릿이 없어 GAS 배포를 건너뜁니다."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.check.outputs.skip != 'true'
+        uses: actions/checkout@v4
+      - if: steps.check.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - if: steps.check.outputs.skip != 'true'
+        name: Push & deploy
+        working-directory: gas
+        run: |
+          umask 077
+          printf '%s' "$CLASPRC_JSON" > ~/.clasprc.json
+          printf '{"scriptId":"%s","rootDir":"."}' "$GAS_SCRIPT_ID" > .clasp.json
+          npx -y @google/clasp@2.4.2 push --force
+          DESC="${GITHUB_SHA::7} via GitHub Actions"
+          if [ -n "$GAS_DEPLOYMENT_ID" ]; then
+            npx -y @google/clasp@2.4.2 deploy --deploymentId "$GAS_DEPLOYMENT_ID" --description "$DESC"
+          else
+            npx -y @google/clasp@2.4.2 deploy --description "$DESC"
+          fi
